@@ -7,16 +7,18 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Button,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import FolderOrFile from "../components/FolderOrFile";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as DocumentPicker from "expo-document-picker";
 import Modal from "react-native-modal";
-import { addPath, uploadingFoldersAndFiles } from "../redux/slices/fileSlice";
+import { uploadingFoldersAndFiles } from "../redux/slices/fileSlice";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function Home({ route }) {
-  const { dir,title } = route.params;
+  const { dir, title } = route.params;
 
   const dispatch = useDispatch();
   const [pullRefresh, setPullRefresh] = useState(false);
@@ -28,11 +30,13 @@ export default function Home({ route }) {
     isGettingFoldersAndFilesFailed,
     errorMessage,
   } = useSelector((state) => state.fileSlice);
-const path = dir.join('/');
-  useEffect(() => {
-    dispatch({ type: "GET_FOLDER_AND_FILES", data: { dir } });
-  }, [dispatch,dir]); // Add dependency array to prevent re-rendering in infinite loops
+  const isFocused = useIsFocused();
+  const path = dir.join("/");
 
+  useEffect(() => {
+    if (isFocused) dispatch({ type: "GET_FOLDER_AND_FILES", data: { dir } });
+  }, [dispatch, dir,isFocused]);
+  
   const handleActionPress = async () => {
     try {
       const doc = await DocumentPicker.getDocumentAsync({
@@ -41,7 +45,7 @@ const path = dir.join('/');
       });
 
       if ((doc.assets?.length || 0) <= 30 && !doc.canceled) {
-        dispatch({ type: "UPLOAD_FOLDER_AND_FILES", data: doc });
+        dispatch({ type: "UPLOAD_FOLDER_AND_FILES", data: {dir,doc} });
         console.log(doc);
       } else if (!doc.canceled)
         Alert.alert("Limited Files", "Only 30 files are upload at once");
@@ -52,11 +56,16 @@ const path = dir.join('/');
 
   const handlePullRefresh = () => {
     setPullRefresh(true);
-    dispatch({ type: "GET_FOLDER_AND_FILES", data: { title } });
+    dispatch({ type: "GET_FOLDER_AND_FILES", data: { dir } });
     setPullRefresh(false);
   };
 
-  const renderItem = ({ item }) => <FolderOrFile item={item} route={route}/>;
+  const renderItem = ({ item }) => (
+    <FolderOrFile
+      item={item}
+      route={route}
+    />
+  );
 
   return (
     <View style={styles.container}>
@@ -66,6 +75,10 @@ const path = dir.join('/');
       ) : isGettingFoldersAndFilesFailed ? (
         <View>
           <Text style={styles.errorMessage}>{errorMessage}</Text>
+          <Button
+            title='Reload'
+            onPress={handlePullRefresh}
+          />
         </View>
       ) : (
         <>

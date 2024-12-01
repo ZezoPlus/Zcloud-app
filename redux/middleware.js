@@ -12,6 +12,8 @@ import store from "./store";
 const baseURL = "http://192.168.1.6:5010";
 function* getFoldersAndFiles(action) {
   const {dir} = action.data;
+  console.log(`${baseURL}/files/get-files/${dir}`);
+  
   yield put(gettingFoldersAndFiles());
   try {
     const res = yield call(axios.get, `${baseURL}/files/get-files/${dir}`);
@@ -23,12 +25,13 @@ function* getFoldersAndFiles(action) {
 }
 
 function* uploadFoldersAndFiles(action) {
+const {dir,doc} = action.data
   yield put(uploadingFoldersAndFiles(true));
   try {
     const formData = new FormData();
 
     // Loop through the array of files (action.data.assets should be an array)
-    action.data.assets.forEach((file) => {
+    doc.assets.forEach((file) => {
       // Append each file to the 'files' field
       formData.append("files", {
         uri: file.uri, // File URI
@@ -53,7 +56,7 @@ function* uploadFoldersAndFiles(action) {
     // Send the POST request
     const res = yield call(
       axiosInstance.post,
-      `${baseURL}/files/upload-files`,
+      `${baseURL}/files/upload-files/${dir}`,
       formData,
       {
         headers: {

@@ -21,6 +21,7 @@ export default function FolderOrFile({ item, route }) {
       case ".docs":
         return "file-word-o";
       case ".ppt":
+      case ".pptx":
         return "file-powerpoint-o";
       case ".txt":
         return "file-text-o";
@@ -45,13 +46,14 @@ export default function FolderOrFile({ item, route }) {
 
   return (
     <View style={styles.wrapper}>
-      {[".jpg", ".jpeg", ".png"].includes(item.extension) && item.url ? (
+      {/* {[".jpg", ".jpeg", ".png"].includes(item.extension) && item.url ? (
         <Image
           source={{ uri: item.url }} // Correctly use item.url for Image source
           style={styles.image}
           resizeMode='contain' // Prevents image stretching
         />
       ) : (
+      )} */}
         <Pressable
           onPress={() => {
             folderNavigation(item.isDirectory, item.name);
@@ -63,7 +65,6 @@ export default function FolderOrFile({ item, route }) {
             color='#00b2ff'
           />
         </Pressable>
-      )}
 
       <View style={styles.container}>
         <Text
