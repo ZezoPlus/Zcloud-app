@@ -1,7 +1,8 @@
 {
   "name": "zcloud-app",
+  "license": "0BSD",
   "version": "1.0.0",
-  "main": "expo/AppEntry.js",
+  "main": "index.js",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -9,14 +10,24 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "expo": "~51.0.28",
-    "expo-status-bar": "~1.12.1",
-    "react": "18.2.0",
-    "react-native": "0.74.5"
+    "@react-navigation/native": "^7.0.3",
+    "@react-navigation/stack": "^7.0.3",
+    "@reduxjs/toolkit": "^2.3.0",
+    "axios": "^1.7.7",
+    "expo": "~52.0.7",
+    "expo-document-picker": "~13.0.1",
+    "expo-status-bar": "~2.0.0",
+    "react": "18.3.1",
+    "react-native": "0.76.2",
+    "react-native-gesture-handler": "~2.20.2",
+    "react-native-modal": "^13.0.1",
+    "react-native-safe-area-context": "^4.14.0",
+    "react-native-screens": "^4.1.0",
+    "react-redux": "^9.1.2",
+    "react-saga": "^0.3.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@types/react": "^18.3.12"
+    "@babel/core": "^7.20.0"
   },
   "private": true
 }

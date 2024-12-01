@@ -1,20 +1,39 @@
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
-import { StatusBar } from "expo-status-bar";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
+import Home from "./screens/Home";
+import { Provider } from "react-redux";
+import store from "./redux/store";
+
+const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      <Text>Open up App.js to start working on your ap!</Text>
-      {/* <StatusBar style='auto' /> */}
-    </SafeAreaView>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name='home'
+            component={Home}
+            options={({route})=>({
+              title:route?.params?.title || "Zcloud"
+            })}
+            initialParams={{
+              dir:[""],
+              title:""
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "red",
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
