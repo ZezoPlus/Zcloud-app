@@ -13,9 +13,11 @@ import FolderOrFile from "../components/FolderOrFile";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as DocumentPicker from "expo-document-picker";
 import Modal from "react-native-modal";
-import { uploadingFoldersAndFiles } from "../redux/slices/fileSlice";
+import { addPath, uploadingFoldersAndFiles } from "../redux/slices/fileSlice";
 
-export default function Home() {
+export default function Home({ route }) {
+  const { dir,title } = route.params;
+
   const dispatch = useDispatch();
   const [pullRefresh, setPullRefresh] = useState(false);
   const {
@@ -23,11 +25,13 @@ export default function Home() {
     isGettingFoldersAndFiles,
     uploadProgress,
     isUploadFoldersAndFiles,
+    isGettingFoldersAndFilesFailed,
+    errorMessage,
   } = useSelector((state) => state.fileSlice);
-
+const path = dir.join('/');
   useEffect(() => {
-    dispatch({ type: "GET_FOLDER_AND_FILES" });
-  }, [dispatch]); // Add dependency array to prevent re-rendering in infinite loops
+    dispatch({ type: "GET_FOLDER_AND_FILES", data: { dir } });
+  }, [dispatch,dir]); // Add dependency array to prevent re-rendering in infinite loops
 
   const handleActionPress = async () => {
     try {
@@ -39,7 +43,8 @@ export default function Home() {
       if ((doc.assets?.length || 0) <= 30 && !doc.canceled) {
         dispatch({ type: "UPLOAD_FOLDER_AND_FILES", data: doc });
         console.log(doc);
-      } else Alert.alert("Limited Files", "Only 30 files are upload at once");
+      } else if (!doc.canceled)
+        Alert.alert("Limited Files", "Only 30 files are upload at once");
     } catch (error) {
       console.log(error);
     }
@@ -47,19 +52,26 @@ export default function Home() {
 
   const handlePullRefresh = () => {
     setPullRefresh(true);
-    dispatch({ type: "GET_FOLDER_AND_FILES" });
+    dispatch({ type: "GET_FOLDER_AND_FILES", data: { title } });
     setPullRefresh(false);
   };
 
+  const renderItem = ({ item }) => <FolderOrFile item={item} route={route}/>;
+
   return (
     <View style={styles.container}>
+      <Text style={styles.path}>{path}</Text>
       {isGettingFoldersAndFiles ? (
         <ActivityIndicator size={"large"} />
+      ) : isGettingFoldersAndFilesFailed ? (
+        <View>
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
+        </View>
       ) : (
         <>
           <FlatList
             data={foldersAndFiles}
-            renderItem={FolderOrFile}
+            renderItem={renderItem}
             keyExtractor={(item) => item.uniqueId}
             numColumns={3}
             key={`flatlist-columns-${3}`} // Force re-render on column changes
@@ -105,6 +117,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
+  errorMessage: {
+    textAlign: "center",
+    color: "#f41a1a",
+  },
   columnWrapper: {
     justifyContent: "space-between", // Space between columns
     // backgroundColor:"#000",
@@ -121,9 +137,9 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     backgroundColor: "#ffbc1f",
-    borderRadius: 30,
+    borderRadius: 50,
     padding: 15,
-    marginVertical: 10,
+    marginVertical: 5,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -140,5 +156,8 @@ const styles = StyleSheet.create({
   },
   modalText: {
     fontSize: 18,
+  },
+  path: {
+    color: "gray",
   },
 });

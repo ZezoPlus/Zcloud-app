@@ -16,6 +16,13 @@ export default function App() {
           <Stack.Screen
             name='home'
             component={Home}
+            options={({route})=>({
+              title:route?.params?.title || "Zcloud"
+            })}
+            initialParams={{
+              dir:[""],
+              title:""
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>

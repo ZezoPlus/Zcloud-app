@@ -1,15 +1,21 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Image, Pressable } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-export default function FolderOrFile({ item }) {
+import { useNavigation } from "@react-navigation/native";
+import { addPath } from "../redux/slices/fileSlice";
+import { useDispatch } from "react-redux";
+
+export default function FolderOrFile({ item, route }) {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const {dir} = route.params;
+  
   const generateIconName = (extension) => {
     switch (extension) {
       case ".pdf":
         return "file-pdf-o";
       case ".jpeg":
-        return "file-picture-o";
       case ".jpg":
-        return "file-picture-o";
       case ".png":
         return "file-picture-o";
       case ".docs":
@@ -20,17 +26,45 @@ export default function FolderOrFile({ item }) {
         return "file-text-o";
       case ".zip":
         return "file-zip-o";
+      case ".mp4":
+        return "file-video-o";
       default:
         return "folder";
     }
   };
+
+  const folderNavigation = (isDirectory, dirName) => {
+    if (isDirectory) {
+      dispatch(addPath(dirName)) +
+        navigation.push("home", {
+          title: dirName,
+          dir:[...dir,dirName]
+        });
+    }
+  };
+
   return (
-    <View>
-      <FontAwesome
-        name={generateIconName(item.extension)}
-        size={100}
-        color={"#00b2ff"}
-      />
+    <View style={styles.wrapper}>
+      {[".jpg", ".jpeg", ".png"].includes(item.extension) && item.url ? (
+        <Image
+          source={{ uri: item.url }} // Correctly use item.url for Image source
+          style={styles.image}
+          resizeMode='contain' // Prevents image stretching
+        />
+      ) : (
+        <Pressable
+          onPress={() => {
+            folderNavigation(item.isDirectory, item.name);
+          }}
+        >
+          <FontAwesome
+            name={generateIconName(item.extension)}
+            size={100}
+            color='#00b2ff'
+          />
+        </Pressable>
+      )}
+
       <View style={styles.container}>
         <Text
           style={styles.text}
@@ -43,16 +77,26 @@ export default function FolderOrFile({ item }) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
+  wrapper: {
+    alignItems: "center",
+    margin: 10,
+  },
   container: {
-    flex: 1, // Ensures the container takes up available space
-    maxWidth: 100, // Constrain the width to fit your layout
-    overflow: "hidden", // Prevent children from overflowing
-    // backgroundColor:"#000",
+    flex: 1,
+    maxWidth: 100,
+    overflow: "hidden",
   },
   text: {
-    flexShrink: 1, // Ensures text shrinks to avoid overflow
+    flexShrink: 1,
     fontSize: 14,
     color: "#000",
+    textAlign: "center",
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
   },
 });

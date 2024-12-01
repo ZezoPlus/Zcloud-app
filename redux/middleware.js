@@ -2,20 +2,23 @@ import { put, takeLatest, call } from "redux-saga/effects";
 import axios from "axios";
 import {
   gettingFoldersAndFiles,
-  setFoldersAndFiles,
+  gettingFoldersAndFilesFailed,
+  gettingFoldersAndFilesSuccess,
   setUploadingProgress,
   uploadingFoldersAndFiles,
 } from "./slices/fileSlice";
 import store from "./store";
 
-const baseURL = "http://192.168.1.10:5010";
-function* getFoldersAndFiles() {
+const baseURL = "http://192.168.1.6:5010";
+function* getFoldersAndFiles(action) {
+  const {dir} = action.data;
   yield put(gettingFoldersAndFiles());
   try {
-    const res = yield call(axios.get, `${baseURL}/files/get-files`);
-    yield put(setFoldersAndFiles(res.data));
+    const res = yield call(axios.get, `${baseURL}/files/get-files/${dir}`);
+    yield put(gettingFoldersAndFilesSuccess(res.data));
   } catch (error) {
     console.log(error);
+    yield put(gettingFoldersAndFilesFailed("Unable to Get Files Please Again"))
   }
 }
 

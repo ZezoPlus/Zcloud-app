@@ -3,8 +3,11 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   isGettingFoldersAndFiles: false,
   foldersAndFiles: [],
-  isUploadFoldersAndFiles:false,
-  uploadProgress:0,
+  isGettingFoldersAndFilesFailed: false,
+  errorMessage: "",
+  isUploadFoldersAndFiles: false,
+  uploadProgress: 0,
+  path: [""],
 };
 
 const fileSlice = createSlice({
@@ -13,19 +16,39 @@ const fileSlice = createSlice({
   reducers: {
     gettingFoldersAndFiles: (state) => {
       state.isGettingFoldersAndFiles = true;
+      state.isGettingFoldersAndFilesFailed = false;
     },
-    setFoldersAndFiles: (state, action) => {
+    gettingFoldersAndFilesSuccess: (state, action) => {
       state.isGettingFoldersAndFiles = false;
+      state.isGettingFoldersAndFilesFailed = false;
       state.foldersAndFiles = action.payload;
     },
-    setUploadingProgress:(state,action)=>{
-      state.uploadProgress=action.payload;
+    gettingFoldersAndFilesFailed: (state, action) => {
+      state.isGettingFoldersAndFiles = false;
+      state.isGettingFoldersAndFilesFailed = true;
+      state.errorMessage = action.payload;
     },
-    uploadingFoldersAndFiles:(state,action)=>{
-      state.isUploadFoldersAndFiles=action.payload;
+    resetFoldersAndFiles: (state) => {
+      state.foldersAndFiles = [];
+    },
+    setUploadingProgress: (state, action) => {
+      state.uploadProgress = action.payload;
+    },
+    uploadingFoldersAndFiles: (state, action) => {
+      state.isUploadFoldersAndFiles = action.payload;
+    },
+    addPath: (state, action) => {
+      state.path.push(action.payload);
     },
   },
 });
 
 export default fileSlice.reducer;
-export const { gettingFoldersAndFiles, setFoldersAndFiles,setUploadingProgress,uploadingFoldersAndFiles } = fileSlice.actions;
+export const {
+  gettingFoldersAndFiles,
+  gettingFoldersAndFilesSuccess,
+  gettingFoldersAndFilesFailed,
+  setUploadingProgress,
+  uploadingFoldersAndFiles,
+  addPath,
+} = fileSlice.actions;
